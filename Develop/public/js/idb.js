@@ -1,14 +1,13 @@
-
 // this variable should hold the db connection
 let db;
 
 // establish connection to indexedDB database 
-const request = indexedDB.open('budget', 1);
+const request = indexedDB.open('budget_tracker', 1);
 
 request.onupgradeneeded = function(event) {
     const db = event.target.result;
 
-    db.createObjectStore('new_budget', { autoIncrement: true });
+    db.createObjectStore('new_transaction', { autoIncrement: true });
 };
 
 // on success
@@ -38,14 +37,14 @@ function uploadTransaction() {
     const transaction = db.transaction(['new_transaction'], 'readwrite');
     const budgetObjectStore = transaction.objectStore('new_transaction');
     // gets and sets all records to the variable getRecords
-    const getRecords = budgetObjectStore.getRecords();
+    const getAll = budgetObjectStore.getAll();
 
-    getRecords.onsuccess = function() {
+    getAll.onsuccess = function() {
         // if theres something in the indexeddbs store it should be sent to api server
-        if (getRecords.result.length > 0) {
-            fetch('api/transaction', {
+        if (getAll.result.length > 0) {
+            fetch('/api/transaction', {
                 method: 'POST',
-                body: JSON.stringify(getRecords.result),
+                body: JSON.stringify(getAll.result),
                 headers: {
                     Accept: 'application/json, text/plain, */*',
                     'Content-Type': 'application/json'
